@@ -16,6 +16,7 @@ class UserModel {
         })
     }
 
+    
     static async adduser(name, email, pass) {
         return new Promise(resolve => {
             db.query("insert into users (name,email,password) value(?,?,?)", [name, email, pass], (error, result) => {

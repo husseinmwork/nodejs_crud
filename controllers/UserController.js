@@ -1,59 +1,43 @@
-const userModel = require('../models/User')
-const { validationResult } = require('express-validator')
-//how to run this classes 
-//route->controller->models
-class UserController {
+const User = require('../models/user');
 
 
-    static async getalluser(req, res) {
-        var results = await userModel.getusers();
+exports.getAllUsers = (req, res) => {
+    User.findAll().then(users => {
+        res.json(users);
+    }).catch(error => {
+        res.status(500).json({ error: "error for get all user" });
+    })
+};
 
-        if (results)
-            res.send(results)
+exports.createUser = (req, res) => {
+    const username = req.body.name;
+    const useremail = req.body.email;
+    const userpassword = req.body.password;
+    User.create({ name: username, email: useremail, password: userpassword }).then(newUser => {
+        res.json(newUser);
+    }).catch(error => {
+        res.status(500).json({ error: "error for added new user", error });
+    })
+};
 
-    }
+exports.deleteUser = (req, res) => {
+    User.destroy({ where: { id: req.body.id } }).then(deleteRows => {
+        console.log("delete done", deleteRows);
+        res.json(deleteRows);
+    }).catch(error => {
+        console.error("error for delete user", error)
+    })
+};
 
-    static async adduser(req, res) {
-        var name = req.body.name;
-        var email = req.body.email;
-        var password = req.body.password;
-        var x = await userModel.adduser(name, email, password)
-        if (x)
-            res.send('add successfully')
-        else
-            res.send('add failed')
-    }
-
-    static async deleteuser(req, res) {
-        const error = validationResult(req);
-        const id = req.body.id;
-
-        if (!error.isEmpty()) {
-            res.json(error.array())
-        } else {
-
-            if (id)
-                var result = await userModel.deleteuser(id);
-            if (result)
-                res.send('delete done')
-            else
-                res.send('faield to delete user')
-
-        }
-
-
-    }
-
-    static async updateuser(req, res) {
-        const id = req.body.id;
-        const name = req.body.name;
-        const email = req.body.email;
-        const password = req.body.password;
-        var result = await userModel.updateuser(id, name, email, password)
-        if (result)
-            res.send('data edited successfully')
-        else
-            res.send('failed to update user')
-    }
-}
-module.exports = UserController
+exports.updateUser = (req, res) => {
+    const username = req.body.name;
+    const useremail = req.body.email;
+    const userpassword = req.body.password;
+    const userid = req.body.id;
+    User.update({ email: useremail, name: username, password: userpassword }, { where: { id: userid } }).then(updateRows => {
+        console.log("updated user", updateRows);
+        res.json(updateRows);
+    }).catch(error => {
+        console.log("error for update user", error)
+    })
+};
